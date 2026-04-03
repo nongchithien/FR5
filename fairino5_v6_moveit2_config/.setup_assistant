@@ -7,7 +7,7 @@ moveit_setup_assistant_config:
   package_settings:
     author_name: litao
     author_email: litao@frtech.fr
-    generated_timestamp: 1721284151
+    generated_timestamp: 1775210300
   control_xacro:
     command:
       - position
