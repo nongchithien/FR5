@@ -2,11 +2,11 @@
 build/
 install/
 log/
-
+fairino-cpp-sdk/libfairino/LinuxBuild/bin
 # IDE
 .vscode/
 .idea/
-
+.cache
 # Python
 __pycache__/
 *.pyc
