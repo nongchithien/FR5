@@ -3,16 +3,16 @@ controller_manager:
   ros__parameters:
     update_rate: 100  # Hz
 
-    fairino5_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
+    # fairino5_controller:
+    #   type: joint_trajectory_controller/JointTrajectoryController
 
 
-    fairino5_v6_group_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
+    # fairino5_v6_group_controller:
+    #   type: joint_trajectory_controller/JointTrajectoryController
 
 
-    Ext_axis_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
+    # Ext_axis_controller:
+    #   type: joint_trajectory_controller/JointTrajectoryController
 
 
     full_robot_group_controller:
@@ -22,33 +22,33 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-fairino5_controller:
-  ros__parameters:
-    joints:
-      - j1
-      - j2
-      - j3
-      - j4
-      - j5
-      - j6
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-fairino5_v6_group_controller:
-  ros__parameters:
-    joints:
-      - j1
-      - j2
-      - j3
-      - j4
-      - j5
-      - j6
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-Ext_axis_controller:
+# fairino5_controller:
+#   ros__parameters:
+#     joints:
+#       - j1
+#       - j2
+#       - j3
+#       - j4
+#       - j5
+#       - j6
+#     command_interfaces:
+#       - position
+#     state_interfaces:
+#       - position
+# fairino5_v6_group_controller:
+#   ros__parameters:
+#     joints:
+#       - j1
+#       - j2
+#       - j3
+#       - j4
+#       - j5
+#       - j6
+#     command_interfaces:
+#       - position
+#     state_interfaces:
+#       - position
+# Ext_axis_controller:
   ros__parameters:
     joints:
       - Ext_Axis

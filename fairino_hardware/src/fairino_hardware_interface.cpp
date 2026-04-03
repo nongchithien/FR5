@@ -6,12 +6,12 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_init(const hardw
     if (hardware_interface::SystemInterface::on_init(sysinfo) != hardware_interface::CallbackReturn::SUCCESS) {
         return hardware_interface::CallbackReturn::ERROR;
     }
-    info_ = sysinfo;//info_是父类中定义的变量
+    info_ = sysinfo;// info_ is defined in the base class
     
     for (const hardware_interface::ComponentInfo& joint : info_.joints) {
 
         //指令部分
-        if (joint.command_interfaces.size() != 1) {//开放servoJ
+        if (joint.command_interfaces.size() != 1) {// enable ServoJ
             RCLCPP_FATAL(rclcpp::get_logger("FairinoHardwareInterface"),
                         "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
                         joint.command_interfaces.size());
@@ -25,14 +25,14 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_init(const hardw
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        // if (joint.command_interfaces[1].name != hardware_interface::HW_IF_EFFORT){//预留，用于关节扭矩直接控制
+        // if (joint.command_interfaces[1].name != hardware_interface::HW_IF_EFFORT){ // reserved for direct joint torque control
         //     RCLCPP_FATAL(rclcpp::get_logger("FairinoHardwareInterface"),
         //            "Joint '%s' have %s command interfaces found as first command interface. '%s' expected.",
         //            joint.name.c_str(), joint.command_interfaces[1].name.c_str(), hardware_interface::HW_IF_EFFORT);
         //     return hardware_interface::CallbackReturn::ERROR;
         // }
 
-        //关节状态部分
+        // Joint state section
         if (joint.state_interfaces.size() != 1) {
             RCLCPP_FATAL(rclcpp::get_logger("FairinoHardwareInterface"), "Joint '%s' has %zu state interface. 3 expected.",
                         joint.name.c_str(), joint.state_interfaces.size());
@@ -70,7 +70,7 @@ std::vector<hardware_interface::StateInterface> FairinoHardwareInterface::export
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  //导出关节相关的状态接口(位置，速度，扭矩)
+    // Export joint state interfaces (position, velocity, torque)
   for (size_t i = 0; i < info_.joints.size(); ++i){
     state_interfaces.emplace_back(hardware_interface::StateInterface(
         info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_jnt_position_state[i]));
@@ -82,7 +82,7 @@ std::vector<hardware_interface::StateInterface> FairinoHardwareInterface::export
     //     info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &_jnt_torque_state.at(i)));
   }
 
-  //导出
+    // Export
   return state_interfaces;
 }
 
@@ -93,7 +93,7 @@ std::vector<hardware_interface::CommandInterface> FairinoHardwareInterface::expo
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
         info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_jnt_position_command[i]));
 
-//     command_interfaces.emplace_back(hardware_interface::CommandInterface(//预留的扭矩控制接口
+//     command_interfaces.emplace_back(hardware_interface::CommandInterface(// reserved torque control interface
 //         info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &_jnt_torque_command.at(i)));
   }
 
@@ -106,9 +106,9 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_activate(const r
 {
     using namespace std::chrono_literals;
     RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Starting ...please wait...");
-    //做变量的初始化工作
-    _ptr_robot = std::make_unique<FRRobot>();//创建机器人实例
-    for(int i=0;i<6;i++){//初始化变量
+    // Initialize variables
+    _ptr_robot = std::make_unique<FRRobot>(); // create robot instance
+    for(int i=0;i<6;i++){ // initialize variables
         _jnt_position_command[i] = 0;
         _jnt_velocity_command[i] = 0;
         _jnt_torque_command[i] = 0;
@@ -116,21 +116,23 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_activate(const r
         _jnt_velocity_state[i] = 0;
         _jnt_torque_state[i] = 0;
     }
-    _control_mode = 0;//默认是位置控制,0-位置控制，1-扭矩控制 2-速度控制
-    errno_t returncode = _ptr_robot->RPC(_controller_ip.c_str());//建立xmlrpc连接
-    rclcpp::sleep_for(200ms);//等待一段时间让控制器的rpc连接建立完毕
+    _control_mode = 0; // default is position control: 0-position, 1-torque, 2-velocity
+    errno_t returncode = _ptr_robot->RPC(_controller_ip.c_str()); // establish XMLRPC connection
+    rclcpp::sleep_for(200ms); // wait for the controller RPC connection to be ready
     if(returncode != 0){
-        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "机械臂SDK连接失败！请检查端口时候被占用");
+        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Robot SDK connection failed! Check whether the port is in use.");
         return hardware_interface::CallbackReturn::ERROR;
     }else{
-        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "机械臂SDK连接成功！");
+        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Robot SDK connection succeeded!");
     }
-    //做第一步的工作，读取当前状态数据
+    // First step: read current state data
     JointPos jntpos;
     returncode = _ptr_robot->GetActualJointPosDegree(0,&jntpos);
     /*
-    获取反馈位置后同步到指令位置以维持当前状态，如果发现读取失败，那么就无法激活插件，
-    因为错误的反馈位置会导致初始指令位置下发出现严重偏差导致事故
+    After receiving feedback positions, synchronize them to command positions
+    to maintain the current state. If the read fails, the plugin cannot be
+    activated because incorrect feedback would cause large command errors and
+    potential incidents.
     */
     if(returncode == 0){
         for(int j=0;j<6;j++){
@@ -138,10 +140,10 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_activate(const r
         }
         RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"),"初始指令位置: %f,%f,%f,%f,%f,%f",_jnt_position_command[0],\
         _jnt_position_command[1],_jnt_position_command[2],_jnt_position_command[3],_jnt_position_command[4],_jnt_position_command[5]);    
-        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "机械臂硬件启动成功!");
+        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Robot hardware started successfully!");
         return hardware_interface::CallbackReturn::SUCCESS;
     }else{
-        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "读取初始关节角度错误，硬件无法启动！请检查通讯内容");
+        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Failed to read initial joint angles, hardware cannot start! Check the communication.");
         return hardware_interface::CallbackReturn::ERROR;
     }
 }
@@ -151,8 +153,8 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_activate(const r
 hardware_interface::CallbackReturn FairinoHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& previous_state)
 {
     RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Stopping ...please wait...");
-    _ptr_robot->StopMotion();//停止机器人
-    _ptr_robot->CloseRPC();//销毁实例，连接断开
+    _ptr_robot->StopMotion(); // stop the robot
+    _ptr_robot->CloseRPC(); // destroy instance, disconnect
     _ptr_robot.release();
     RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "System successfully stopped!");
     return hardware_interface::CallbackReturn::SUCCESS;
@@ -161,13 +163,13 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_deactivate(const
 
 
 hardware_interface::return_type FairinoHardwareInterface::read(const rclcpp::Time& time,const rclcpp::Duration& period)
-{//从RTDE反馈数据中获取所需的位置，速度和扭矩信息
+{// Get required position/velocity/torque info from feedback
     JointPos state_data;
     error_t returncode = _ptr_robot->GetActualJointPosDegree(1,&state_data);
     if(returncode == 0){
         for(int i=0;i<6;i++){
-            _jnt_position_state[i] = state_data.jPos[i]/180.0*M_PI;//注意单位转换，moveit统一用弧度
-            //_jnt_torque_state[i] = state_data.jt_cur_tor[i];//注意单位转换
+            _jnt_position_state[i] = state_data.jPos[i]/180.0*M_PI; // unit conversion, MoveIt uses radians
+            //_jnt_torque_state[i] = state_data.jt_cur_tor[i]; // unit conversion
         }
     }else{
         hardware_interface::return_type::ERROR;
@@ -181,7 +183,7 @@ hardware_interface::return_type FairinoHardwareInterface::read(const rclcpp::Tim
 
 hardware_interface::return_type FairinoHardwareInterface::write(const rclcpp::Time& time,const rclcpp::Duration& period)
 {
-    if(_control_mode == 0){//位置控制模式
+    if(_control_mode == 0){ // position control mode
         if (std::any_of(&_jnt_position_command[0], &_jnt_position_command[5],\
             [](double c) { return not std::isfinite(c); })) {
             return hardware_interface::return_type::ERROR;
@@ -189,22 +191,22 @@ hardware_interface::return_type FairinoHardwareInterface::write(const rclcpp::Ti
         JointPos cmd;
         ExaxisPos extcmd{0,0,0,0};
         for(auto j=0;j<6;j++){
-            cmd.jPos[j] = _jnt_position_command[j]/M_PI*180; //注意单位转换
+            cmd.jPos[j] = _jnt_position_command[j]/M_PI*180; // unit conversion
         }
-        //RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "ServoJ下发位置:%f,%f,%f,%f,%f,%f",\
+        //RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "ServoJ command position: %f,%f,%f,%f,%f,%f",\
             cmd.jPos[0],cmd.jPos[1],cmd.jPos[2],cmd.jPos[3],cmd.jPos[4],cmd.jPos[5]);
         int returncode = _ptr_robot->ServoJ(&cmd,&extcmd,0,0,0.008,0,0);
         if(returncode != 0){
-            RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "ServoJ指令下发错误,错误码:%d",returncode);
+            RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "ServoJ command send error, code: %d",returncode);
         }
-    }else if(_control_mode == 1){//扭矩控制模式
+    }else if(_control_mode == 1){ // torque control mode
         if (std::any_of(&_jnt_torque_command[0], &_jnt_torque_command[5],\
             [](double c) { return not std::isfinite(c); })) {
             return hardware_interface::return_type::ERROR;
         }
-        //_ptr_robot->write(_jnt_torque_command);//注意单位转换
+        //_ptr_robot->write(_jnt_torque_command); // unit conversion
     }else{
-        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "指令发送错误:未识别当前所处控制模式");
+        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Command send error: unrecognized control mode");
         return hardware_interface::return_type::ERROR;
     }
  

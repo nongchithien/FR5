@@ -4,35 +4,35 @@ moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControll
 
 moveit_simple_controller_manager:
   controller_names:
-    - fairino5_controller
-    - fairino5_v6_group_controller
-    - Ext_axis_controller
+    # - fairino5_controller
+    # - fairino5_v6_group_controller
+    # - Ext_axis_controller
     - full_robot_group_controller
 
-  fairino5_controller:
-    type: FollowJointTrajectory
-    joints:
-      - j1
-      - j2
-      - j3
-      - j4
-      - j5
-      - j6
-    action_ns: follow_joint_trajectory
-    default: true
-  fairino5_v6_group_controller:
-    type: FollowJointTrajectory
-    joints:
-      - j1
-      - j2
-      - j3
-      - j4
-      - j5
-      - j6
-  Ext_axis_controller:
-    type: FollowJointTrajectory
-    joints:
-      - Ext_Axis
+  # fairino5_controller:
+  #   type: FollowJointTrajectory
+  #   joints:
+  #     - j1
+  #     - j2
+  #     - j3
+  #     - j4
+  #     - j5
+  #     - j6
+    # action_ns: follow_joint_trajectory
+    # default: true
+  # fairino5_v6_group_controller:
+  #   type: FollowJointTrajectory
+  #   joints:
+  #     - j1
+  #     - j2
+  #     - j3
+  #     - j4
+  #     - j5
+  #     - j6
+  # Ext_axis_controller:
+  #   type: FollowJointTrajectory
+  #   joints:
+  #     - Ext_Axis
   full_robot_group_controller:
     type: FollowJointTrajectory
     joints:
@@ -43,3 +43,5 @@ moveit_simple_controller_manager:
       - j4
       - j5
       - j6
+    action_ns: follow_joint_trajectory
+    default: true
