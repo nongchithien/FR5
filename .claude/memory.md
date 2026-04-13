@@ -54,6 +54,52 @@
 - **Giải pháp**: Tích hợp `ExaxisPos` vào struct truyền kèm lệnh `ServoJ` — 1 lệnh duy nhất
 - **TUYỆT ĐỐI KHÔNG** gửi riêng 2 lệnh (robot + external axis) — sẽ gây xung đột motion
 
+### 8. Tạo cấu trúc .claude/ (2026-04-13)
+- **Mục tiêu**: Tạo bộ nhớ + hướng dẫn cho AI assistant theo chuẩn `.claude/` directory
+- **Kết quả**: 15 files được tạo trong `.claude/`:
+  - `CLAUDE.md` — Project brain chính
+  - `CLAUDE.local.md` — Config private local
+  - `settings.json` / `settings.local.json` — Permissions & hooks
+  - `memory.md` — File này
+  - `rules/` — workflow.md, design.md, tech-defaults.md
+  - `agents/` — researcher.md, reviewer.md, fixer.md
+  - `skills/` — build-workspace.md, debug-connection.md, switch-sim-real.md, send-cartesian-cmd.md, add-sdk-function.md
+
+### 9. Fix VSCode IntelliSense errors (2026-04-13)
+- **Vấn đề**: IDE báo lỗi `'mtc_test/mtc_node.hpp' file not found` và cascade 17 errors
+- **Nguyên nhân**: `settings.json` chỉ trỏ `compileCommands` đến `fairino_hardware`, không cover `mtc_test`
+- **Giải pháp**:
+  1. Tạo merged `build/compile_commands.json` từ tất cả packages
+  2. Cập nhật `c_cpp_properties.json` — thêm đầy đủ includePaths + browse.path
+  3. `settings.json` trỏ đến merged compile_commands
+- **Bài học**: Colcon tạo `compile_commands.json` riêng per-package, cần merge để IDE hoạt động
+
+### 10. Fix mtc_test build errors (2026-04-13)
+- **Vấn đề 1**: `moveit_task_constructor_core` not found
+  - **Fix**: `sudo apt install ros-humble-moveit ros-humble-moveit-task-constructor-core`
+- **Vấn đề 2**: `planning_scene.hpp: No such file` (sau khi cài MoveIt)
+  - **Nguyên nhân**: ROS 2 Humble MoveIt dùng `.h` extension, code viết cho version mới dùng `.hpp`
+  - **Fix**: Thêm `__has_include()` fallback trong `mtc_node.hpp`:
+    ```cpp
+    #if __has_include(<moveit/planning_scene/planning_scene.hpp>)
+    #include <moveit/planning_scene/planning_scene.hpp>
+    #else
+    #include <moveit/planning_scene/planning_scene.h>
+    #endif
+    ```
+- **Vấn đề 3**: CMakeLists.txt thiếu dependencies
+  - **Fix**: Thêm `find_package` + `ament_target_dependencies` cho: `geometry_msgs`, `moveit_core`, `moveit_msgs`, `moveit_ros_planning_interface`, `shape_msgs`, `tf2_eigen`, `tf2_geometry_msgs`
+- **Bài học**: ROS 2 Humble MoveIt headers dùng `.h`, không phải `.hpp`. Dùng `__has_include()` để tương thích nhiều version.
+
+### 11. Phát triển MTC pick & place task (2026-04-13)
+- **Mục tiêu**: Xây dựng MoveIt Task Constructor pipeline cho pick & place
+- **Trạng thái**: Đang phát triển — đã thêm `stage_move_to_pick` (Connect stage) và `attach_object_stage`
+- **Lưu ý**: Code demo hiện vẫn dùng `panda_arm` — cần đổi sang `fairino5` group names
+
+### 12. Thêm package fr5_arm_hand_config (2026-04-13)
+- **Mục tiêu**: MoveIt 2 config riêng cho FR5 + gripper/hand
+- **Trạng thái**: Mới tạo, đang phát triển
+
 ---
 
 ## 📚 Kiến thức tích lũy
@@ -92,3 +138,30 @@ meter → mm:       value * 1000.0
 - Simulation: `mock_components/GenericSystem`
 - Real robot: `fairino_hardware/FairinoHardwareInterface`
 - File: `fairino5_v6_moveit2_config/config/fairino5_v6_robot.ros2_control.xacro`
+
+### ROS 2 Humble MoveIt header compatibility
+- Humble MoveIt dùng `.h` (vd: `planning_scene.h`)
+- MoveIt newer versions dùng `.hpp`
+- Dùng `__has_include()` để viết code tương thích cả 2:
+```cpp
+#if __has_include(<moveit/xxx/xxx.hpp>)
+#include <moveit/xxx/xxx.hpp>
+#else
+#include <moveit/xxx/xxx.h>
+#endif
+```
+
+### VSCode + colcon IntelliSense
+- Colcon tạo `compile_commands.json` riêng trong mỗi `build/<pkg>/`
+- Cần merge vào `build/compile_commands.json` để IDE cover toàn bộ workspace
+- Script merge:
+```python
+import json, glob
+all_commands = []
+for f in glob.glob('build/*/compile_commands.json'):
+    with open(f) as fh:
+        all_commands.extend(json.load(fh))
+with open('build/compile_commands.json', 'w') as fh:
+    json.dump(all_commands, fh, indent=2)
+```
+

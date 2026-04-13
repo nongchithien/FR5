@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This does not replace URDF, and is not an extension of URDF.
+    This is a format for representing semantic information about the robot structure.
+    A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
+-->
+<robot name="fairino5_v6_robot">
+    <!--GROUPS: Representation of a set of joints and links. This can be useful for specifying DOF to plan for, defining arms, end effectors, etc-->
+    <!--LINKS: When a link is specified, the parent joint of that link (if it exists) is automatically included-->
+    <!--JOINTS: When a joint is specified, the child link of that joint (which will always exist) is automatically included-->
+    <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
+    <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
+    <group name="fr5_arm">
+        <chain base_link="base_link" tip_link="wrist3_link"/>
+    </group>
+    <group name="hand">
+        <link name="hand"/>
+        <link name="leftfinger"/>
+        <link name="rightfinger"/>
+        <joint name="gripper_joint"/>
+    </group>
+    <group name="fr5_arm_hand">
+        <group name="hand"/>
+        <group name="fr5_arm"/>
+    </group>
+    <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
+    <end_effector name="hand" parent_link="wrist3_link" group="hand" parent_group="fr5_arm"/>
+    <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
+    <disable_collisions link1="base_link" link2="shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="base_link" link2="upperarm_link" reason="Never"/>
+    <disable_collisions link1="forearm_link" link2="upperarm_link" reason="Adjacent"/>
+    <disable_collisions link1="forearm_link" link2="wrist1_link" reason="Adjacent"/>
+    <disable_collisions link1="hand" link2="leftfinger" reason="Adjacent"/>
+    <disable_collisions link1="hand" link2="rightfinger" reason="Adjacent"/>
+    <disable_collisions link1="hand" link2="wrist1_link" reason="Never"/>
+    <disable_collisions link1="hand" link2="wrist2_link" reason="Never"/>
+    <disable_collisions link1="hand" link2="wrist3_link" reason="Adjacent"/>
+    <disable_collisions link1="leftfinger" link2="rightfinger" reason="Default"/>
+    <disable_collisions link1="leftfinger" link2="wrist1_link" reason="Never"/>
+    <disable_collisions link1="leftfinger" link2="wrist2_link" reason="Never"/>
+    <disable_collisions link1="leftfinger" link2="wrist3_link" reason="Never"/>
+    <disable_collisions link1="rightfinger" link2="wrist1_link" reason="Never"/>
+    <disable_collisions link1="rightfinger" link2="wrist2_link" reason="Never"/>
+    <disable_collisions link1="rightfinger" link2="wrist3_link" reason="Never"/>
+    <disable_collisions link1="shoulder_link" link2="upperarm_link" reason="Adjacent"/>
+    <disable_collisions link1="shoulder_link" link2="wrist1_link" reason="Never"/>
+    <disable_collisions link1="upperarm_link" link2="wrist1_link" reason="Never"/>
+    <disable_collisions link1="wrist1_link" link2="wrist2_link" reason="Adjacent"/>
+    <disable_collisions link1="wrist1_link" link2="wrist3_link" reason="Never"/>
+    <disable_collisions link1="wrist2_link" link2="wrist3_link" reason="Adjacent"/>
+</robot>

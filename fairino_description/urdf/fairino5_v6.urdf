@@ -351,7 +351,7 @@
       </material>
     </visual>
     <collision>
-      <origins
+      <origin
         xyz="0 0 0"
         rpy="0 0 0" />
       <geometry>
@@ -458,4 +458,64 @@
       k_position="15"
       k_velocity="10" />
   </joint>
+  <!-- Gripper link configuration -->
+  <joint name="gripper_joint" type="fixed">
+        <parent link="wrist3_link" />
+        <child link="hand" />
+        <origin rpy="0 0 -0.785398163397" xyz="0 0 0.1" />
+    </joint>
+    <link name="hand">
+        <visual>
+            <geometry>
+                <mesh filename="package://fairino_description/meshes/fairino5_v6/hand.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://fairino_description/meshes/fairino5_v6/hand.dae" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="leftfinger">
+        <visual>
+            <geometry>
+                <mesh filename="package://fairino_description/meshes/fairino5_v6/finger.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://fairino_description/meshes/fairino5_v6/finger.dae" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="rightfinger">
+        <visual>
+            <origin rpy="0 0 3.14159265359" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://fairino_description/meshes/fairino5_v6/finger.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 3.14159265359" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://fairino_description/meshes/fairino5_v6/finger.dae" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="finger_joint1" type="prismatic">
+        <parent link="hand" />
+        <child link="leftfinger" />
+        <origin rpy="0 0 0" xyz="0 0 0.0584" />
+        <axis xyz="0 1 0" />
+        <limit effort="20" lower="0.0" upper="0.04" velocity="0.2" />
+    </joint>
+    <joint name="finger_joint2" type="prismatic">
+        <parent link="hand" />
+        <child link="rightfinger" />
+        <origin rpy="0 0 0" xyz="0 0 0.0584" />
+        <axis xyz="0 -1 0" />
+        <limit effort="20" lower="0.0" upper="0.04" velocity="0.2" />
+        <mimic joint="finger_joint1" />
+    </joint>
+
 </robot>

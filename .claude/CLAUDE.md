@@ -16,6 +16,7 @@ Cho phép điều khiển robot thật hoặc mô phỏng qua ros2_control và M
 
 ```
 frcobot_ros2-main/
+├── .claude/                     # AI assistant memory, rules, agents, skills
 ├── fairino_hardware/            # ros2_control plugin + command server
 │   ├── src/
 │   │   ├── fairino_hardware_interface.cpp  # ServoJ realtime control loop
@@ -24,12 +25,13 @@ frcobot_ros2-main/
 │   ├── include/fairino_hardware/
 │   ├── libfairino/              # Fairino C++ SDK (.so binaries)
 │   └── CMakeLists.txt
-├── fairino5_v6_moveit2_config/  # MoveIt 2 Setup Assistant config
+├── fairino5_v6_moveit2_config/  # MoveIt 2 Setup Assistant config (6-axis only)
 │   ├── config/                  # SRDF, controllers, kinematics, ros2_control xacro
 │   └── launch/                  # Launch files + Python test scripts
+├── fr5_arm_hand_config/         # MoveIt 2 config cho FR5 + gripper/hand
 ├── fairino_description/         # URDF, meshes (STL/DAE)
 ├── fairino_msgs/                # Custom msg/srv (RemoteCmdInterface.srv)
-├── mtc_test/                    # MoveIt Task Constructor tests
+├── mtc_test/                    # MoveIt Task Constructor tests (pick & place)
 ├── API_Instruction.pdf          # SDK API documentation
 └── ErrorCode_lnstruction.pdf    # Error code reference
 ```

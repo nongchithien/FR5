@@ -1,17 +1,14 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fairino5_v6_robot">
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
-    <xacro:arg name="ros2_control_hardware_type" default="mock_components" />
 
     <!-- Import fairino5_v6_robot urdf file -->
     <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6.urdf" />
 
     <!-- Import control_xacro -->
     <xacro:include filename="fairino5_v6_robot.ros2_control.xacro" />
-    <xacro:include filename="hand.ros2_control.xacro" />
 
 
     <xacro:fairino5_v6_robot_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
-    <xacro:hand_ros2_control name="HandFakeSystem" ros2_control_hardware_type="$(arg ros2_control_hardware_type)"/>
 
 </robot>
