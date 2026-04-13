@@ -1,0 +1,9 @@
+{
+  "local": {
+    "workspace_path": "/home/thien123/frcobot_ros2-main",
+    "ros2_setup": "/opt/ros/humble/setup.bash",
+    "robot_ip": "192.168.57.2",
+    "user_language": "vi",
+    "comment_language": "en"
+  }
+}

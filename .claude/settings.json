@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow_auto_build": true,
+    "allow_auto_run_tests": true,
+    "allow_file_edit": true,
+    "allow_file_create": true,
+    "require_approval_for": [
+      "ros2 run fairino_hardware ros2_cmd_server",
+      "ros2 launch",
+      "git push",
+      "git push --force",
+      "rm -rf"
+    ]
+  },
+  "hooks": {
+    "pre_commit": [
+      "colcon build --packages-select fairino_hardware fairino_msgs"
+    ],
+    "post_edit_cpp": [
+      "colcon build --packages-select fairino_hardware --cmake-args -DCMAKE_BUILD_TYPE=Debug"
+    ]
+  },
+  "project": {
+    "language": "cpp",
+    "framework": "ros2",
+    "build_system": "colcon",
+    "main_packages": [
+      "fairino_hardware",
+      "fairino5_v6_moveit2_config",
+      "fairino_description",
+      "fairino_msgs",
+      "mtc_test"
+    ]
+  }
+}
