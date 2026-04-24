@@ -32,10 +32,13 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_init(const hardw
         //     return hardware_interface::CallbackReturn::ERROR;
         // }
 
-        //关节状态部分
-        if (joint.state_interfaces.size() != 1) {
-            RCLCPP_FATAL(rclcpp::get_logger("FairinoHardwareInterface"), "Joint '%s' has %zu state interface. 3 expected.",
-                        joint.name.c_str(), joint.state_interfaces.size());
+        //State interface check - gripper joints need position+velocity for GripperActionController
+        bool is_gripper = (joint.name == "finger_joint1" || joint.name == "finger_joint2");
+        size_t expected_state_ifaces = is_gripper ? 2 : 1;
+        if (joint.state_interfaces.size() != expected_state_ifaces) {
+            RCLCPP_FATAL(rclcpp::get_logger("FairinoHardwareInterface"),
+                        "Joint '%s' has %zu state interface(s). %zu expected.",
+                        joint.name.c_str(), joint.state_interfaces.size(), expected_state_ifaces);
             return hardware_interface::CallbackReturn::ERROR;
         }
 
@@ -70,16 +73,25 @@ std::vector<hardware_interface::StateInterface> FairinoHardwareInterface::export
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
+  int arm_idx = 0;
   //导出关节相关的状态接口(位置，速度，扭矩)
   for (size_t i = 0; i < info_.joints.size(); ++i){
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
-        info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_jnt_position_state[i]));
-
-    // state_interfaces.emplace_back(hardware_interface::StateInterface(
-    //     info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &_jnt_velocity_state.at(i)));
-
-    // state_interfaces.emplace_back(hardware_interface::StateInterface(
-    //     info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &_jnt_torque_state.at(i)));
+    if (info_.joints[i].name == "finger_joint1") {
+        // Export position AND velocity (dummy) for GripperActionController
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+            info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_gripper_position_state));
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+            info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &_gripper_velocity_state));
+    } else if (info_.joints[i].name == "finger_joint2") {
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+            info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_gripper_position_state));
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+            info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &_gripper_velocity_state));
+    } else if (arm_idx < 6) {
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+            info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_jnt_position_state[arm_idx]));
+        arm_idx++;
+    }
   }
 
   //导出
@@ -89,12 +101,17 @@ std::vector<hardware_interface::StateInterface> FairinoHardwareInterface::export
 std::vector<hardware_interface::CommandInterface> FairinoHardwareInterface::export_command_interfaces()
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
+  
+  int arm_idx = 0;
   for (size_t i = 0; i < info_.joints.size(); ++i) {
-    command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_jnt_position_command[i]));
-
-//     command_interfaces.emplace_back(hardware_interface::CommandInterface(//预留的扭矩控制接口
-//         info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &_jnt_torque_command.at(i)));
+    if (info_.joints[i].name == "finger_joint1" || info_.joints[i].name == "finger_joint2") {
+        command_interfaces.emplace_back(hardware_interface::CommandInterface(
+            info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_gripper_position_command));
+    } else if (arm_idx < 6) {
+        command_interfaces.emplace_back(hardware_interface::CommandInterface(
+            info_.joints[i].name, hardware_interface::HW_IF_POSITION, &_jnt_position_command[arm_idx]));
+        arm_idx++;
+    }
   }
 
   return command_interfaces;
@@ -125,6 +142,14 @@ hardware_interface::CallbackReturn FairinoHardwareInterface::on_activate(const r
     }else{
         RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "机械臂SDK连接成功！");
     }
+
+    uint8_t status = 0;
+    uint8_t smooth = 0;
+    uint8_t block = 0;
+    _ptr_robot->SetDO(gripper_port, status, smooth, block);
+    // Keep sleep here because on_activate runs once before real-time control starts
+    _ptr_robot->Sleep(3000); 
+
     //做第一步的工作，读取当前状态数据
     JointPos jntpos;
     returncode = _ptr_robot->GetActualJointPosDegree(0,&jntpos);
@@ -207,6 +232,34 @@ hardware_interface::return_type FairinoHardwareInterface::write(const rclcpp::Ti
         RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "指令发送错误:未识别当前所处控制模式");
         return hardware_interface::return_type::ERROR;
     }
+
+    // --- GRIPPER CONTROL LOGIC (NON-BLOCKING) ---
+    static double last_gripper_cmd = _gripper_position_command;
+    static bool gripper_moving = false;
+    static rclcpp::Time gripper_start_time = time;
+
+    // Check if the command has changed significantly
+    if (std::abs(_gripper_position_command - last_gripper_cmd) > 0.001) {
+        uint8_t status = 1;
+        _ptr_robot->SetDO(gripper_port, status, 0, 0); // Turn ON
+        gripper_moving = true;
+        gripper_start_time = time;
+        last_gripper_cmd = _gripper_position_command;
+        RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Gripper triggered: DO %d set to 1", gripper_port);
+    }
+
+    // Turn OFF after 3 seconds
+    if (gripper_moving && (time - gripper_start_time).seconds() > 3.0) {
+            uint8_t status = 0;
+            _ptr_robot->SetDO(gripper_port, status, 0, 0); // Turn OFF
+            gripper_moving = false;
+            
+        // Update state to match command so GripperActionController knows it succeeded
+            _gripper_position_state = _gripper_position_command;
+            RCLCPP_INFO(rclcpp::get_logger("FairinoHardwareInterface"), "Gripper stroke finished: DO %d set to 0", gripper_port);
+    }
+    // ---------------------------------------------
+
  
     return hardware_interface::return_type::OK;
 }

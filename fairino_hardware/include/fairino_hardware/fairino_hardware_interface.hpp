@@ -60,6 +60,10 @@ private:
   double _jnt_velocity_state[6];
   double _jnt_torque_state[6];
   int _control_mode;
+  int gripper_port = 9; //C01
+  double _gripper_position_command = 0.0;
+  double _gripper_position_state = 0.0;
+  double _gripper_velocity_state = 0.0;  // Dummy - required by GripperActionController
   std::string _controller_ip = CONTROLLER_IP_ADDRESS;
   std::unique_ptr<FRRobot> _ptr_robot;
 };

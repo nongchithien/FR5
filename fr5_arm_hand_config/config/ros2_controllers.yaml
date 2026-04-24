@@ -27,7 +27,6 @@ fr5_arm_controller:
       - position
     state_interfaces:
       - position
-      - velocity
 hand_controller:
   ros__parameters:
     joint: finger_joint1
