@@ -9,7 +9,7 @@ from moveit_configs_utils import MoveItConfigsBuilder
 
 def generate_launch_description():
     moveit_config = (
-        MoveItConfigsBuilder("fairino5_v6_moveit2_config")
+        MoveItConfigsBuilder("fairino5_v6_robot", package_name="fairino5_v6_moveit2_config")
         .robot_description(file_path="config/fairino5_v6_robot.urdf.xacro")
         .to_moveit_configs()
     )

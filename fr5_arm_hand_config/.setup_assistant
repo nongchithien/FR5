@@ -1,7 +1,7 @@
 moveit_setup_assistant_config:
   urdf:
     package: fairino_description
-    relative_path: urdf/fairino5_v6.urdf
+    relative_path: urdf/fairino5_v6_with_camera.urdf.xacro
   srdf:
     relative_path: config/fairino5_v6_robot.srdf
   package_settings:

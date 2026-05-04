@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fairino5_v6_robot">
+  <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6_arm.urdf.xacro" />
+  <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6_gripper.urdf.xacro" />
+  <xacro:include filename="$(find fairino_description)/urdf/gemini335L_336L_camera.urdf.xacro" />
+
+  <link name="world" />
+
+  <xacro:fairino5_v6_arm />
+  <xacro:fairino5_v6_gripper />
+  <xacro:gemini335L_336L_camera />
+
+  <joint name="world_to_base_link" type="fixed">
+    <parent link="world" />
+    <child link="base_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <!-- <joint name="world_to_camera_link" type="fixed">
+    <parent link="world" />
+    <child link="camera_link" />
+    <origin xyz="-0.3 -0.8 0.2" rpy="0 0 0.52359877559" />
+  </joint> -->
+
+  <joint name="camera_to_base" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="-0.5 -0.5 0.3" rpy="0 0 0.52359877559"/>  <!-- Tuỳ vị trí camera -->
+  </joint>
+</robot>

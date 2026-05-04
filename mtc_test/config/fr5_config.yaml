@@ -4,15 +4,15 @@
     max_solutions: 10
 
     # Planning group and link names
-    arm_group_name: "fairino5_v6_group"
+    arm_group_name: "fr5_arm"
     eef_name: "wrist3_link"
     hand_group_name: "hand"
-    hand_frame: "panda_link8"
+    hand_frame: "hand"
 
     # Poses
     hand_open_pose: "open"
     hand_close_pose: "close"
-    arm_home_pose: "ready"
+    arm_home_pose: "home_no_arm"
 
     # Scene frames
     world_frame: "world"

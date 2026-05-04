@@ -3,6 +3,8 @@ build/
 install/
 log/
 fairino-cpp-sdk/libfairino/LinuxBuild/bin
+OrbbecSDK_ROS2/
+/image
 # IDE
 .vscode/
 .idea/

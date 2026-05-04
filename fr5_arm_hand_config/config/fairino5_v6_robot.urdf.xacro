@@ -7,7 +7,8 @@
     <xacro:arg name="ros2_control_hardware_type" default="Fr5Hardware" />
 
     <!-- Import fairino5_v6_robot urdf file -->
-    <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6.urdf" />
+    <!-- <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6.urdf" /> -->
+    <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6_with_camera.urdf.xacro" />
 
     <!-- Import control_xacro -->
     <xacro:include filename="fairino5_v6_robot.ros2_control.xacro" />

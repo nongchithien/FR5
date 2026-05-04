@@ -1,0 +1,2 @@
+move_group:
+  capabilities: "moveit_task_constructor_core::ExecuteTaskSolutionCapability"

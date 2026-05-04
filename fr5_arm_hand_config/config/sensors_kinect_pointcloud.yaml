@@ -1,0 +1,25 @@
+sensors:
+  - camera_1_pointcloud
+  # - camera_2_depth_image
+camera_1_pointcloud:
+    sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+    point_cloud_topic: /camera/depth/points
+    max_range: 2.0
+    point_subsample: 1
+    padding_offset: 0.2
+    padding_scale: 1.0
+    max_update_rate: 50.0
+    filtered_cloud_topic: /camera_1/filtered_points
+    cloud_frame_id: camera_link  # Dùng frame có trong URDF
+    robot_description: robot_description
+    tf_buffer_duration: 10.0
+# camera_2_depth_image:
+#     sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
+#     image_topic: /camera/depth/image_raw
+#     queue_size: 10
+#     near_clipping_plane_distance: 0.3
+#     far_clipping_plane_distance: 5.0
+#     shadow_threshold: 0.2
+#     padding_scale: 1.0
+#     max_update_rate: 20.0
+#     filtered_cloud_topic: /camera_2/filtered_points

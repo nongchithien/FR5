@@ -9,10 +9,8 @@ from moveit_configs_utils import MoveItConfigsBuilder
 
 def generate_launch_description():
     moveit_config = (
-        MoveItConfigsBuilder("moveit_resources_panda")
-        .planning_pipelines(pipelines=["ompl"])
-        .robot_description(file_path="config/panda.urdf.xacro")
-        .trajectory_execution(file_path="config/gripper_moveit_controllers.yaml")
+        MoveItConfigsBuilder("fairino5_v6_robot", package_name="fairino5_v6_moveit2_config")
+        .robot_description(file_path="config/fairino5_v6_robot.urdf.xacro")
         .to_moveit_configs()
     )
 
@@ -32,7 +30,7 @@ def generate_launch_description():
 
     # RViz
     rviz_config_file = (
-        get_package_share_directory("moveit_task_constructor_demo") + "/config/mtc.rviz"
+        get_package_share_directory("mtc_test") + "/config/mtc2.rviz"
     )
     rviz_node = Node(
         package="rviz2",
@@ -53,7 +51,7 @@ def generate_launch_description():
         executable="static_transform_publisher",
         name="static_transform_publisher",
         output="log",
-        arguments=["0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "world", "panda_link0"],
+        arguments=["0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "world", "base_link"],
     )
 
     # Publish TF
@@ -67,7 +65,7 @@ def generate_launch_description():
 
     # ros2_control using FakeSystem as hardware
     ros2_controllers_path = os.path.join(
-        get_package_share_directory("moveit_resources_panda_moveit_config"),
+        get_package_share_directory("fairino5_v6_moveit2_config"),
         "config",
         "ros2_controllers.yaml",
     )
@@ -81,8 +79,8 @@ def generate_launch_description():
     # Load controllers
     load_controllers = []
     for controller in [
-        "panda_arm_controller",
-        "panda_hand_controller",
+        "fr5_arm_controller",
+        "hand_controller",
         "joint_state_broadcaster",
     ]:
         load_controllers += [

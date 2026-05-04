@@ -3,14 +3,18 @@ controller_manager:
   ros__parameters:
     update_rate: 100  # Hz
 
-    fairino5_controller:
+    fr5_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+
+
+    hand_controller:
+      type: position_controllers/GripperActionController
 
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-fairino5_controller:
+fr5_arm_controller:
   ros__parameters:
     joints:
       - j1
@@ -23,3 +27,6 @@ fairino5_controller:
       - position
     state_interfaces:
       - position
+hand_controller:
+  ros__parameters:
+    joint: finger_joint1
