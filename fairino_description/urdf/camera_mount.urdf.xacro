@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="camera_mount">
+  <xacro:macro name="camera_mount">
+
+    <link name="mount_base_link">
+      <inertial>
+        <origin xyz="6.14877436951322E-05 -0.0484252322077973 0.0138992209233882" rpy="0 0 0" />
+        <mass value="0.0546025374014476" />
+        <inertia
+          ixx="5.19239275792081E-05"
+          ixy="-2.05182301923396E-07"
+          ixz="3.82715941416782E-08"
+          iyy="4.64717271984322E-05"
+          iyz="8.29626601179668E-06"
+          izz="8.31912222503916E-05" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://fairino_description/meshes/camera_mount/mount_base_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.749019607843137 0.749019607843137 0.749019607843137 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://fairino_description/meshes/camera_mount/mount_base_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="connector_link">
+      <inertial>
+        <origin xyz="0.0475614877436952 0.0265747677922027 -0.00410077907661177" rpy="0 0 0" />
+        <mass value="0.0546025374014476" />
+        <inertia
+          ixx="5.19239275792081E-05"
+          ixy="-2.05182301923392E-07"
+          ixz="3.82715941416761E-08"
+          iyy="4.64717271984321E-05"
+          iyz="8.29626601179668E-06"
+          izz="8.31912222503915E-05" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://fairino_description/meshes/camera_mount/connector_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="1 1 1 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://fairino_description/meshes/camera_mount/connector_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="connector_joint" type="fixed">
+      <origin xyz="-0.0475 -0.075 0.018" rpy="0 0 0" />
+      <parent link="mount_base_link" />
+      <child link="connector_link" />
+      <axis xyz="0 0 0" />
+    </joint>
+
+  </xacro:macro>
+</robot>

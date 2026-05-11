@@ -15,6 +15,8 @@ def generate_launch_description():
         .to_moveit_configs()
     )
     ld = generate_demo_launch(moveit_config)
+     
+    pkg = "/home/thien123/frcobot_ros2-main/moveit_calibration"
 
     orbbec_launch_path = get_package_share_directory("orbbec_camera")
     config_path = os.path.join(
@@ -29,5 +31,12 @@ def generate_launch_description():
         launch_arguments={"config_file_path": config_path}.items(),
     )
     ld.add_action(TimerAction(period=5.0, actions=[orbbec_launch]))
+
+    handeye_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg, "calib1.launch.py")
+        )
+    )
+    ld.add_action(handeye_launch)
 
     return ld

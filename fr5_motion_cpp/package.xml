@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>fr5_motion_cpp</name>
+  <version>0.0.1</version>
+  <description>FR5 MoveIt2 C++ motion control — MoveGroupInterface nodes</description>
+  <maintainer email="thienchinong@gmail.com">thien123</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>moveit_ros_planning_interface</depend>
+  <depend>geometry_msgs</depend>
+
+  <exec_depend>fairino5_v6_moveit2_config</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

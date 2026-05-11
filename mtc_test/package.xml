@@ -18,6 +18,11 @@
   <depend>shape_msgs</depend>
   <depend>tf2_eigen</depend>
   <depend>tf2_geometry_msgs</depend>
+  <depend>control_msgs</depend>
+  <depend>rclcpp_action</depend>
+  <depend>tf2_ros</depend>
+  <depend>moveit_servo</depend>
+  <depend>controller_manager_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

@@ -6,7 +6,6 @@ controller_manager:
     fr5_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-
     hand_controller:
       type: position_controllers/GripperActionController
 

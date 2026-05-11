@@ -3,8 +3,8 @@
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
 
     <!-- Import fairino5_v6_robot urdf file -->
-    <!-- <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6.urdf" /> -->
-    <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6_with_camera.urdf.xacro" />
+    <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6.urdf" />
+    <!-- <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6_with_camera.urdf.xacro" /> -->
 
 
     <!-- Import control_xacro -->

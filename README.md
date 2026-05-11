@@ -34,3 +34,37 @@ Dưới đây là tóm tắt các lỗi gặp phải trong quá trình cấu hì
 * **Sửa:** 
   * Triển khai code điều khiển tay kẹp qua DO (status=1 kích chạy, tự động tắt status=0 sau 3 giây) hoàn toàn **Non-blocking** trong hàm `write()` để không làm giật lag hàm `ServoJ`.
   * Áp dụng thuật toán **Nội suy (Interpolation)** để làm biến `_gripper_position_state` tăng dần đều đặn trong suốt 3 giây, giúp vượt qua hệ thống chống kẹt của ROS 2 một cách hoàn hảo, trả về trạng thái Success cho RViz.
+
+## Lỗi runtime thường gặp (MoveIt, Octomap, Camera)
+
+### 1. Octomap báo missing transform / invalid frame
+* **Lỗi:** `moveit.ros.perception.shape_mask: Missing transform...` hoặc `Invalid frame ID "..."`.
+* **Nguyên nhân:** TF tree thiếu frame camera hoặc robot; `cloud_frame_id` không nằm trong TF tree; nhiều `robot_state_publisher` cùng tên gây TF bị ghi đè.
+* **Sửa:**
+  * Đảm bảo chỉ có **1** `robot_state_publisher` và `/joint_states` có dữ liệu.
+  * Đặt `cloud_frame_id` trùng frame có trong URDF/TF (ví dụ `camera_link`).
+  * Bổ sung frame camera còn thiếu trong URDF (ví dụ `camera_depth_optical_frame`) nếu dùng frame đó.
+
+### 2. Depth image unsync trong MoveIt
+* **Lỗi:** `image_transport ... do not appear to be synchronized` (image_raw và camera_info).
+* **Nguyên nhân:** `DepthImageOctomapUpdater` yêu cầu sync chặt, camera_info bị drop hoặc timestamp lệch.
+* **Sửa:**
+  * Dùng `PointCloudOctomapUpdater` thay cho depth image nếu không cần.
+  * Nếu vẫn dùng depth image, bật `approximate_sync: true` và tăng `queue_size`.
+
+### 3. Octomap resolution warning
+* **Lỗi:** `Resolution not specified for Octomap. Assuming resolution = 0.1`.
+* **Sửa:** Thêm `octomap_resolution` vào config MoveIt (planning scene monitor / occupancy map) để đặt độ phân giải mong muốn.
+
+### 4. Driver Fairino không kết nối được SDK
+* **Lỗi:** `机械臂SDK连接失败！` và `Failed to set the initial state...`.
+* **Nguyên nhân:** Robot controller đang bị chiếm cổng hoặc không kết nối được IP.
+* **Sửa:**
+  * Dừng các process đang kết nối robot.
+  * Kiểm tra kết nối mạng tới `192.168.57.2` (ping).
+  * Restart phần cứng.
+
+### 5. `cloud_frame_id` không áp dụng trong Orbbec launch
+* **Lỗi:** `/camera/depth/points` vẫn có `frame_id` mặc định, `ros2 param get /camera/camera cloud_frame_id` trả rỗng.
+* **Nguyên nhân:** `config_file_path` chỉ dùng để override launch args, không tự set param vào node nếu không truyền.
+* **Sửa:** Truyền `cloud_frame_id` trực tiếp trong `IncludeLaunchDescription` hoặc tham số launch.

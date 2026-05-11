@@ -14,10 +14,9 @@ def generate_launch_description():
         .to_moveit_configs()
     )
 
-    # Load  ExecuteTaskSolutionCapability so we can execute found solutions in simulation
+    # Load ExecuteTaskSolutionCapability so we can execute found solutions in simulation
     move_group_capabilities = {"capabilities": "move_group/ExecuteTaskSolutionCapability"}
 
-    # Start the actual move_group node/action server
     run_move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -54,7 +53,6 @@ def generate_launch_description():
         arguments=["0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "world", "base_link"],
     )
 
-    # Publish TF
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -76,7 +74,6 @@ def generate_launch_description():
         output="both",
     )
 
-    # Load controllers
     load_controllers = []
     for controller in [
         "fr5_arm_controller",
@@ -91,6 +88,23 @@ def generate_launch_description():
             )
         ]
 
+    fr5_config = os.path.join(
+        get_package_share_directory("mtc_test"), "config", "fr5_config.yaml"
+    )
+
+    pick_place_controller = Node(
+        package="mtc_test",
+        executable="pick_place_controller",
+        name="pick_place_controller",
+        output="screen",
+        parameters=[
+            fr5_config,
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+        ],
+    )
+
     return LaunchDescription(
         [
             rviz_node,
@@ -98,6 +112,7 @@ def generate_launch_description():
             robot_state_publisher,
             run_move_group_node,
             ros2_control_node,
+            pick_place_controller,
         ]
         + load_controllers
     )

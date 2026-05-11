@@ -1,4 +1,26 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls -la)",
+      "Bash(find /home/thien123/frcobot_ros2-main/fairino5_v6_moveit2_config/config -name \"ompl*\" 2>/dev/null && find /opt/ros/humble/share/moveit_resources_panda_moveit_config -name \"ompl*\" 2>/dev/null | head -3)",
+      "Read(//opt/ros/humble/share/**)",
+      "Read(//home/thien123/.claude/**)",
+      "Bash(xargs ls -lh)",
+      "Bash(grep -E \"\\\\.\\(yaml|xml|py|cpp|launch\\)$\")",
+      "Bash(ls /home/thien123/approval-mcp 2>/dev/null || echo \"Directory does not exist\")",
+      "Read(//home/thien123/**)",
+      "Bash(npm install *)",
+      "Bash(timeout 5 node /home/thien123/approval-mcp/index.js)",
+      "Bash(xargs ls)",
+      "Bash(python3 -)",
+      "Bash(awk -F: '{print $3}')"
+    ],
+    "additionalDirectories": [
+      "/home/thien123/.claude/memory",
+      "/home/thien123/approval-mcp",
+      "/home/thien123/.claude"
+    ]
+  },
   "local": {
     "workspace_path": "/home/thien123/frcobot_ros2-main",
     "ros2_setup": "/opt/ros/humble/setup.bash",

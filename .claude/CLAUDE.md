@@ -29,9 +29,13 @@ frcobot_ros2-main/
 │   ├── config/                  # SRDF, controllers, kinematics, ros2_control xacro
 │   └── launch/                  # Launch files + Python test scripts
 ├── fr5_arm_hand_config/         # MoveIt 2 config cho FR5 + gripper/hand
+├── fr5_motion_cpp/              # MoveGroupInterface C++ nodes (programmatic motion)
+│   ├── src/fr5_movegroup_node.cpp   # Basic plan + execute to named targets
+│   └── launch/run_movegroup.launch.py  # Headless stack (no RViz)
 ├── fairino_description/         # URDF, meshes (STL/DAE)
 ├── fairino_msgs/                # Custom msg/srv (RemoteCmdInterface.srv)
 ├── mtc_test/                    # MoveIt Task Constructor tests (pick & place)
+├── fastdds.xml                  # FastDDS buffer config (4MB for large messages)
 ├── API_Instruction.pdf          # SDK API documentation
 └── ErrorCode_lnstruction.pdf    # Error code reference
 ```

@@ -3,11 +3,13 @@
   <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6_arm.urdf.xacro" />
   <xacro:include filename="$(find fairino_description)/urdf/fairino5_v6_gripper.urdf.xacro" />
   <xacro:include filename="$(find fairino_description)/urdf/gemini335L_336L_camera.urdf.xacro" />
+  <xacro:include filename="$(find fairino_description)/urdf/camera_mount.urdf.xacro" />
 
   <link name="world" />
 
   <xacro:fairino5_v6_arm />
   <xacro:fairino5_v6_gripper />
+  <xacro:camera_mount />
   <xacro:gemini335L_336L_camera />
 
   <joint name="world_to_base_link" type="fixed">
@@ -16,15 +18,17 @@
     <origin xyz="0 0 0" rpy="0 0 0" />
   </joint>
 
-  <!-- <joint name="world_to_camera_link" type="fixed">
-    <parent link="world" />
-    <child link="camera_link" />
-    <origin xyz="-0.3 -0.8 0.2" rpy="0 0 0.52359877559" />
-  </joint> -->
+  <!-- Mount bracket attached to wrist3 -->
+  <joint name="wrist3_to_mount" type="fixed">
+    <parent link="wrist3_link" />
+    <child link="mount_base_link" />
+    <origin xyz="0 0 0.1" rpy="0 0 0.78539816339" />
+  </joint>
 
-  <joint name="camera_to_base" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_link"/>
-    <origin xyz="-0.5 -0.5 0.3" rpy="0 0 0.52359877559"/>  <!-- Tuỳ vị trí camera -->
+  <!-- Camera attached to mount connector -->
+  <joint name="mount_to_camera" type="fixed">
+    <parent link="connector_link" />
+    <child link="camera_link" />
+    <origin xyz="0 0 0.0235" rpy="0 -1.57079632679 1.57079632679" />
   </joint>
 </robot>

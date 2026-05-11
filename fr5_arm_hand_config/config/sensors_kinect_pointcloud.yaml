@@ -4,11 +4,11 @@ sensors:
 camera_1_pointcloud:
     sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
     point_cloud_topic: /camera/depth/points
-    max_range: 2.0
+    max_range: 1.0
     point_subsample: 1
-    padding_offset: 0.2
+    padding_offset: 0.08
     padding_scale: 1.0
-    max_update_rate: 50.0
+    max_update_rate: 10.0
     filtered_cloud_topic: /camera_1/filtered_points
     cloud_frame_id: camera_link  # Dùng frame có trong URDF
     robot_description: robot_description

@@ -38,6 +38,8 @@
     # Place pose [x,y,z,r,p,y]
     place_pose: [0.6, -0.15, 0.0, 0.0, 0.0, 0.0]
     place_surface_offset: 0.0001 # place offset from table
+    place_lower_distance: 0.01   # distance to lower object before release
+    place_retreat_distance: 0.05  # distance to retreat after release
 
     # Valid distance range when approaching an object for picking
     approach_object_min_dist: 0.1

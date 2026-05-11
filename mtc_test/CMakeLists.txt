@@ -16,6 +16,9 @@ find_package(rclcpp REQUIRED)
 find_package(shape_msgs REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(control_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 add_executable(mtc_node src/mtc_node.cpp)
 target_include_directories(mtc_node PUBLIC
@@ -35,11 +38,28 @@ ament_target_dependencies(
   "tf2_geometry_msgs"
 )
 
-install(TARGETS mtc_node
+add_executable(pick_place_controller src/pick_place_controller.cpp)
+target_include_directories(pick_place_controller PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_compile_features(pick_place_controller PUBLIC cxx_std_17)
+ament_target_dependencies(pick_place_controller
+  "geometry_msgs"
+  "moveit_ros_planning_interface"
+  "rclcpp"
+  "rclcpp_action"
+  "control_msgs"
+)
+
+install(TARGETS mtc_node pick_place_controller
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch config
         DESTINATION share/${PROJECT_NAME}
+)
+
+install(PROGRAMS scripts/test_servo.py
+        DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
